@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">celero_challeng_kt</string>
+
+    <string name="base_url">https://hulet.tech</string>
+    <string name="client_list">celerocustomers.json</string>
+
+    <string name="refresh_button">refresh</string>
+    <string name="syncing_dialog">Syncing data</string>
+
+    <string name="serviceReason">Service reason</string>
+
+    <!-- Placeholders -->
+    <string name="client_name">Client Name</string>
+    <string name="client_address">Client Address</string>
+    <string name="client_street">Street</string>
+    <string name="client_city">City</string>
+    <string name="client_state">State</string>
+    <string name="client_zip">Zip</string>
+    <string name="client_country">Country</string>
+    <string name="visit_order">Visit Order </string>
+    <string name="client_phone">Phone</string>
+    <string name="client_reason">Service Reason</string>
+
+    <!-- Button names -->
+    <string name="open_in_maps">Open in Maps</string>
+
+</resources>
