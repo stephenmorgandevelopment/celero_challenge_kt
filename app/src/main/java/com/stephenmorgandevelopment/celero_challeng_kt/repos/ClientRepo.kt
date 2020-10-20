@@ -25,8 +25,10 @@ class ClientRepo @Inject constructor(
         return clientDao.loadLive(identifier)
     }
 
-    suspend fun getAll(list: String): LiveData<List<SimpleClient>> {
-        refreshList(list)
+    suspend fun getAll(list: String, connected: Boolean): LiveData<List<SimpleClient>> {
+        if(connected) {
+            refreshList(list)
+        }
         return clientDao.loadSimpleClients()
     }
 
@@ -38,7 +40,8 @@ class ClientRepo @Inject constructor(
             withContext(Dispatchers.IO) {
                 val response = clientService.getAllClients(list).execute()
 
-                if (response.isSuccessful) {
+                if (response.isSuccessful && response.body() != null && response.body().toString().isNotEmpty()) {
+                    clientDao.deleteAll()
                     clientDao.insertAll(response.body()!!)
                     lastFetchSaved = System.currentTimeMillis()
                 } else {

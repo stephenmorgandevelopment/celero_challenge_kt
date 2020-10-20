@@ -1,10 +1,7 @@
 package com.stephenmorgandevelopment.celero_challeng_kt.doas
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.stephenmorgandevelopment.celero_challeng_kt.models.Client
 import com.stephenmorgandevelopment.celero_challeng_kt.models.SimpleClient
 
@@ -15,6 +12,9 @@ interface ClientDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(clients: List<Client>)
+
+    @Query("DELETE FROM Client")
+    fun deleteAll()
 
     @Query("SELECT identifier, name, serviceReason FROM client ORDER BY visitOrder asc")
     fun loadSimpleClients(): LiveData<List<SimpleClient>>
