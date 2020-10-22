@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ClientRepo @Inject constructor(
-    @ApplicationContext val context: Context,
+    @ApplicationContext val context: Context,  // Not 100% sure this is Kosher yet, but much better than being in the VM.
     val clientService: ClientService,
     val clientDao: ClientDao
 ) {
@@ -40,6 +40,8 @@ class ClientRepo @Inject constructor(
         val timeout: Long = 300000
         val needsRefreshed = ((System.currentTimeMillis() - lastFetchSaved) > timeout)
 
+        // Still thinking this through.  I may use hilt/dagger to inject the ConectivityManger
+        // using a provider / module.
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
         val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
