@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class ClientListFragment : Fragment() {
     val TAG = ClientListFragment::class.java.simpleName
-    val clientFragmentTag = ClientFragment::class.java.simpleName
+    private val clientFragmentTag = ClientFragment::class.java.simpleName
 
     private var _binding: ClientListViewBinding? = null
     private val binding get() = _binding!!
@@ -58,7 +58,6 @@ class ClientListFragment : Fragment() {
             R.id.refreshMenuBtn -> {
                 viewModel.viewModelScope.launch {
                     viewModel.refreshList()
-
                     // Runs test hosted on my domain to check for list update.
 //                    viewModel.refreshTestList()
                 }
@@ -83,7 +82,7 @@ class ClientListFragment : Fragment() {
 
     private fun itemClickListener() =
         AdapterView.OnItemClickListener { parent, view, position, id ->
-            val fragment = ClientFragment(id)
+            val fragment = ClientFragment(id, viewModel.clientRepo)
 
             val transaction = parentFragmentManager.beginTransaction()
             transaction.addToBackStack(null)

@@ -13,21 +13,25 @@ import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.stephenmorgandevelopment.celero_challeng_kt.databinding.ClientDetailViewBinding
 import com.stephenmorgandevelopment.celero_challeng_kt.models.Client
+import com.stephenmorgandevelopment.celero_challeng_kt.repos.ClientRepo
 import com.stephenmorgandevelopment.celero_challeng_kt.viewmodels.ClientViewModel
+import com.stephenmorgandevelopment.celero_challeng_kt.viewmodels.ClientViewModelFactory
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ClientFragment(private val identifier: Long) : Fragment() {
+class ClientFragment(
+    private val identifier: Long,
+    // I'm unsure about the best way to get this into my ViewModelFactory.
+    // I tried a lateinit in the Factory, but it came back uninitialized.
+    // clientRepo is a previously used Singleton, so there should be a way.  I'm working on it.
+    clientRepo: ClientRepo
+    ) : Fragment() {
     private var _binding: ClientDetailViewBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: ClientViewModel by viewModels(
-        factoryProducer = { defaultViewModelProviderFactory }
-    )
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel.setClient(identifier)
+    private val viewModel: ClientViewModel by viewModels  {
+        val intent: Intent = Intent().putExtra("identifier", identifier)
+        ClientViewModelFactory(this, clientRepo, intent.extras)
     }
 
     override fun onCreateView(
@@ -44,15 +48,6 @@ class ClientFragment(private val identifier: Long) : Fragment() {
         }
 
         return binding.root
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-//        updateUi(viewModel.liveClient.value)
-//        viewModel.liveClient.observe(viewLifecycleOwner) {
-//            updateUi(it)
-//        }
     }
 
     override fun onDestroyView() {

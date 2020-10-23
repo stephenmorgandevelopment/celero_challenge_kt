@@ -1,21 +1,24 @@
 package com.stephenmorgandevelopment.celero_challeng_kt.viewmodels
 
+import android.os.Bundle
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
+import androidx.savedstate.SavedStateRegistryOwner
 import com.stephenmorgandevelopment.celero_challeng_kt.models.Client
 import com.stephenmorgandevelopment.celero_challeng_kt.repos.ClientRepo
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class ClientViewModel @ViewModelInject constructor(
     @Assisted val savedStateHandle: SavedStateHandle,
-    val clientRepo: ClientRepo
+    private val clientRepo: ClientRepo
 ) : ViewModel() {
 
-    private var identifier: Long = savedStateHandle["identifier"] ?: -1
-    private lateinit var _client: Client
+    private var identifier: Long = savedStateHandle["identifier"]
+        ?: throw IllegalArgumentException("No identifier.")
+
     private lateinit var _liveClient: LiveData<Client>
+
+    val liveClient get() = _liveClient
 
     init {
         if (identifier != (-1).toLong()) {
@@ -24,17 +27,21 @@ class ClientViewModel @ViewModelInject constructor(
             }
         }
     }
+}
 
-    // The documentation implies that you can pass data straight from your fragment into
-    // savedStateHandle, but I was never able to find an implementation that worked.
-    fun setClient(id: Long) {
-        identifier = id
-        savedStateHandle.set("identifier", id)
-        viewModelScope.launch(Dispatchers.IO) {
-            _liveClient = clientRepo.getLiveClient(identifier)
-        }
+class ClientViewModelFactory(
+    owner: SavedStateRegistryOwner,
+    private val clientRepo: ClientRepo,
+    defaultArgs: Bundle? = null
+) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
+    // My lateinit attempt:
+//    @Inject lateinit var clientRepo: ClientRepo
+
+    override fun <T : ViewModel?> create(
+        key: String,
+        modelClass: Class<T>,
+        handle: SavedStateHandle
+    ): T {
+        return ClientViewModel(handle, clientRepo) as T
     }
-
-    val client get() = _client
-    val liveClient get() = _liveClient
 }

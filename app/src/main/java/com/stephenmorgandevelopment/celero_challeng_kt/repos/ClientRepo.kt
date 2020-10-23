@@ -22,10 +22,6 @@ class ClientRepo @Inject constructor(
 ) {
     private var lastFetchSaved: Long = -1
 
-    fun getClient(identifier: Long): Client {
-        return clientDao.load(identifier)
-    }
-
     fun getLiveClient(identifier: Long): LiveData<Client> {
         return clientDao.loadLive(identifier)
     }
@@ -36,6 +32,7 @@ class ClientRepo @Inject constructor(
     }
 
     // Repo implementation of test to check proper list updating.
+    // May look at moving this to where it belongs.  In the test folders.
     suspend fun getTestList(list: String): LiveData<List<SimpleClient>> { // : LiveData<List<SimpleClient>>
         val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
         val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true

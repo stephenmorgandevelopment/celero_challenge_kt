@@ -20,8 +20,5 @@ interface ClientDao {
     fun loadSimpleClients(): LiveData<List<SimpleClient>>
 
     @Query("SELECT * FROM client WHERE identifier = :identifier")
-    fun load(identifier: Long): Client
-
-    @Query("SELECT * FROM client WHERE identifier = :identifier")
     fun loadLive(identifier: Long): LiveData<Client>
 }
