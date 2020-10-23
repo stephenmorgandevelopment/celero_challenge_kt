@@ -15,11 +15,12 @@ object ServiceModule {
     @Provides
     @Singleton
     fun provideClientService(): ClientService {
-        val retrofitClient: Retrofit = Retrofit.Builder()
+        val retrofitClient = Retrofit.Builder()
             .baseUrl("https://hulet.tech")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         return retrofitClient.create(ClientService::class.java)
     }
+
 }

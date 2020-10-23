@@ -18,8 +18,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ClientFragment(private val identifier: Long) : Fragment() {
-    val TAG = ClientFragment::class.java.simpleName
-
     private var _binding: ClientDetailViewBinding? = null
     private val binding get() = _binding!!
 
@@ -38,16 +36,23 @@ class ClientFragment(private val identifier: Long) : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = ClientDetailViewBinding.inflate(inflater, container, false)
+
+        updateUi(viewModel.liveClient.value)
+
+        viewModel.liveClient.observe(viewLifecycleOwner) {
+            updateUi(it)
+        }
+
         return binding.root
     }
 
     override fun onStart() {
         super.onStart()
 
-        updateUi(viewModel.liveClient.value)
-        viewModel.liveClient.observe(viewLifecycleOwner) {
-            updateUi(it)
-        }
+//        updateUi(viewModel.liveClient.value)
+//        viewModel.liveClient.observe(viewLifecycleOwner) {
+//            updateUi(it)
+//        }
     }
 
     override fun onDestroyView() {

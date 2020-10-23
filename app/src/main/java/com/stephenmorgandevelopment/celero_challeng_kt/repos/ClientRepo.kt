@@ -11,6 +11,8 @@ import com.stephenmorgandevelopment.celero_challeng_kt.models.SimpleClient
 import com.stephenmorgandevelopment.celero_challeng_kt.api.ClientService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,6 +37,37 @@ class ClientRepo @Inject constructor(
         return clientDao.loadSimpleClients()
     }
 
+    // Repo implementation of test to check proper list updating.
+    suspend fun getTestList(list: String): LiveData<List<SimpleClient>> { // : LiveData<List<SimpleClient>>
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
+        val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
+
+        if (isConnected) {
+            @Suppress("BlockingMethodInNonBlockingContext")
+            withContext(Dispatchers.IO) {
+                val retrofitClient = Retrofit.Builder()
+                    .baseUrl("https://www.stephenmorgan-portfolio.com")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+
+                val service = retrofitClient.create(ClientService::class.java)
+
+                val response = service.getTestClients(list).execute()
+
+                if (response.isSuccessful) {
+                    clientDao.deleteAll()
+                    clientDao.insertAll(response.body()!!)
+                } else {
+                    val error = response.errorBody()
+                    Log.d("ClientRepo", error.toString())
+                }
+            }
+        }
+
+        return clientDao.loadSimpleClients()
+    }
+
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun refreshList(list: String) {
         val timeout: Long = 300000
@@ -50,16 +83,13 @@ class ClientRepo @Inject constructor(
             withContext(Dispatchers.IO) {
                 val response = clientService.getAllClients(list).execute()
 
-                if (response.isSuccessful && response.body() != null && response.body().toString()
-                        .isNotEmpty()
-                ) {
+                if (response.isSuccessful) {
                     clientDao.deleteAll()
                     clientDao.insertAll(response.body()!!)
                     lastFetchSaved = System.currentTimeMillis()
                 } else {
                     val error = response.errorBody()
                     Log.d("ClientRepo", error.toString())
-                    TODO("Report error to user.")
                 }
             }
         }

@@ -10,10 +10,9 @@ import com.stephenmorgandevelopment.celero_challeng_kt.R
 import com.stephenmorgandevelopment.celero_challeng_kt.models.SimpleClient
 
 class AllClientsAdapter(
-    val context: Context
+    val inflater: LayoutInflater
 ) : BaseAdapter() {
 
-    private val inflater = LayoutInflater.from(context)
     private var clientList: List<SimpleClient> = emptyList()
 
     override fun getCount(): Int {
@@ -30,7 +29,7 @@ class AllClientsAdapter(
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val holder: ClientViewHolder
-        var view = View(context)
+        var view = View(inflater.context)
 
         if (convertView == null) {
             view = inflater.inflate(R.layout.client_list_item, parent, false)

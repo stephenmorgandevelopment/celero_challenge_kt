@@ -14,7 +14,7 @@ interface ClientDao {
     suspend fun insertAll(clients: List<Client>)
 
     @Query("DELETE FROM Client")
-    fun deleteAll()
+    suspend fun deleteAll()
 
     @Query("SELECT identifier, name, serviceReason FROM client ORDER BY visitOrder asc")
     fun loadSimpleClients(): LiveData<List<SimpleClient>>

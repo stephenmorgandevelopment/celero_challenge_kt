@@ -25,6 +25,8 @@ class ClientViewModel @ViewModelInject constructor(
         }
     }
 
+    // The documentation implies that you can pass data straight from your fragment into
+    // savedStateHandle, but I was never able to find an implementation that worked.
     fun setClient(id: Long) {
         identifier = id
         savedStateHandle.set("identifier", id)

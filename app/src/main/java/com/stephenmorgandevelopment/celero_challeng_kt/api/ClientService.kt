@@ -10,4 +10,7 @@ import javax.inject.Singleton
 interface ClientService {
     @GET("/{list}")
     fun getAllClients(@Path("list") list: String): Call<List<Client>>
+
+    @GET("/api/celero/{list}")
+    fun getTestClients(@Path("list") list: String): Call<List<Client>>
 }
