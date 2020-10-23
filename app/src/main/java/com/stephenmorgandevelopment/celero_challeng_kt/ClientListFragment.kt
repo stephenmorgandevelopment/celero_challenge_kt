@@ -56,14 +56,11 @@ class ClientListFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.refreshMenuBtn -> {
-                val fragmentManager = activity?.supportFragmentManager
-                if (fragmentManager?.findFragmentByTag(clientFragmentTag) != null) {
-                    fragmentManager.popBackStack()
-                }
-
                 viewModel.viewModelScope.launch {
                     viewModel.refreshList()
-//                    viewModel.refreshTestList()  // Runs test hosted on my domain to check for list update.
+
+                    // Runs test hosted on my domain to check for list update.
+//                    viewModel.refreshTestList()
                 }
 
                 viewModel.clients.observe(viewLifecycleOwner) {
