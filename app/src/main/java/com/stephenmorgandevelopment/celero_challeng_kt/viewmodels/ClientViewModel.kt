@@ -1,47 +1,43 @@
 package com.stephenmorgandevelopment.celero_challeng_kt.viewmodels
 
-import android.os.Bundle
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
-import androidx.savedstate.SavedStateRegistryOwner
 import com.stephenmorgandevelopment.celero_challeng_kt.models.Client
 import com.stephenmorgandevelopment.celero_challeng_kt.repos.ClientRepo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ClientViewModel @ViewModelInject constructor(
     @Assisted val savedStateHandle: SavedStateHandle,
     private val clientRepo: ClientRepo
 ) : ViewModel() {
+    private val _liveClient: MutableLiveData<Client> = MutableLiveData()
+    val liveClient: LiveData<Client> get() = _liveClient
 
-    private var identifier: Long = savedStateHandle["identifier"]
-        ?: throw IllegalArgumentException("No identifier.")
-
-    private lateinit var _liveClient: LiveData<Client>
-
-    val liveClient get() = _liveClient
+    val identifier : Long = savedStateHandle[KEY_USER] ?: -1
 
     init {
-        if (identifier != (-1).toLong()) {
-            _liveClient = liveData {
-                emitSource(clientRepo.getLiveClient(identifier))
+        if(identifier != -1L) {
+            viewModelScope.launch(Dispatchers.IO) {
+                _liveClient.postValue(clientRepo.getClient(identifier))
             }
+        } else {
+            _liveClient.value = Client.getEmpty()
         }
     }
-}
 
-class ClientViewModelFactory(
-    owner: SavedStateRegistryOwner,
-    private val clientRepo: ClientRepo,
-    defaultArgs: Bundle? = null
-) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
-    // My lateinit attempt:
-//    @Inject lateinit var clientRepo: ClientRepo
-
-    override fun <T : ViewModel?> create(
-        key: String,
-        modelClass: Class<T>,
-        handle: SavedStateHandle
-    ): T {
-        return ClientViewModel(handle, clientRepo) as T
+    fun setClient(id: Long) {
+        savedStateHandle.set(KEY_USER, id)
+        viewModelScope.launch(Dispatchers.IO) {
+            _liveClient.postValue(clientRepo.getClient(id))
+        }
     }
+
+    companion object {
+        private val KEY_USER = "identifier"
+    }
+
+
 }
+

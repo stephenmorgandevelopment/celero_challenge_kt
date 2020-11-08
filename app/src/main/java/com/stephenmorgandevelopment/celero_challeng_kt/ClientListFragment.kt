@@ -1,22 +1,22 @@
 package com.stephenmorgandevelopment.celero_challeng_kt
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.AdapterView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.observe
 import androidx.lifecycle.viewModelScope
 import com.stephenmorgandevelopment.celero_challeng_kt.adapters.AllClientsAdapter
 import com.stephenmorgandevelopment.celero_challeng_kt.databinding.ClientListViewBinding
+import com.stephenmorgandevelopment.celero_challeng_kt.models.SimpleClient
 import com.stephenmorgandevelopment.celero_challeng_kt.viewmodels.AllClientsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ClientListFragment : Fragment() {
-    val TAG = ClientListFragment::class.java.simpleName
-    private val clientFragmentTag = ClientFragment::class.java.simpleName
-
     private var _binding: ClientListViewBinding? = null
     private val binding get() = _binding!!
 
@@ -41,7 +41,7 @@ class ClientListFragment : Fragment() {
         binding.clientListview.onItemClickListener = itemClickListener()
 
         viewModel.clients.observe(viewLifecycleOwner) {
-            if (it != null) {
+            if (it.isNotEmpty()) {
                 adapter.setClientList(it)
             }
         }
@@ -63,10 +63,7 @@ class ClientListFragment : Fragment() {
                 }
 
                 viewModel.clients.observe(viewLifecycleOwner) {
-                    if (it != null) {
-                        val adp = binding.clientListview.adapter as AllClientsAdapter
-                        adp.setClientList(it)
-                    }
+                    updateList(it)
                 }
 
                 return true
@@ -80,13 +77,32 @@ class ClientListFragment : Fragment() {
         _binding = null
     }
 
+    private fun updateList(clients: List<SimpleClient>) {
+        if (clients.isNotEmpty()) {
+            val adapter = binding.clientListview.adapter as AllClientsAdapter
+            adapter.setClientList(clients)
+        }
+    }
+
     private fun itemClickListener() =
         AdapterView.OnItemClickListener { parent, view, position, id ->
-            val fragment = ClientFragment(id, viewModel.clientRepo)
+            val fragment = ClientFragment().apply {
+                arguments = makeBundleWithIdentifier(id)
+            }
 
             val transaction = parentFragmentManager.beginTransaction()
             transaction.addToBackStack(null)
-            transaction.replace(R.id.container, fragment, clientFragmentTag)
+            transaction.replace(R.id.container, fragment, ClientFragment.TAG)
             transaction.commit()
         }
+
+    private fun makeBundleWithIdentifier(identifier: Long) : Bundle {
+        return Bundle().apply {
+            putLong(ClientFragment.IDENTIFIER_TAG, identifier)
+        }
+    }
+
+    companion object {
+        val TAG = ClientListFragment::class.java.simpleName
+    }
 }
