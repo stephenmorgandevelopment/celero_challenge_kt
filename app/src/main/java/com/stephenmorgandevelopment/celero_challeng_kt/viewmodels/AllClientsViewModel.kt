@@ -4,6 +4,7 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.stephenmorgandevelopment.celero_challeng_kt.models.SimpleClient
 import com.stephenmorgandevelopment.celero_challeng_kt.repos.ClientRepo
+import kotlinx.coroutines.launch
 
 class AllClientsViewModel @ViewModelInject constructor(
     private val clientRepo: ClientRepo
@@ -12,20 +13,15 @@ class AllClientsViewModel @ViewModelInject constructor(
     val clients : LiveData<List<SimpleClient>> get() = _allClients
 
     init {
-        _allClients = fetchListFromRepo()
-//        _allClients = liveData {
-//            emitSource(clientRepo.getAll())
-//        }
-    }
-
-    private fun fetchListFromRepo() : LiveData<List<SimpleClient>> {
-        return liveData {
+        _allClients = liveData {
             emitSource(clientRepo.getAll())
         }
     }
 
     suspend fun refreshList() {
-        _allClients = fetchListFromRepo()
+        _allClients = liveData {
+            emitSource(clientRepo.getAll(true))
+        }
     }
 
     // Test written to make sure list updated properly.

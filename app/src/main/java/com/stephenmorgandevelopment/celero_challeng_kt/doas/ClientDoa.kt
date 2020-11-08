@@ -17,7 +17,10 @@ interface ClientDao {
     suspend fun deleteAll()
 
     @Query("SELECT identifier, name, serviceReason FROM client ORDER BY visitOrder asc")
-    fun loadSimpleClients(): LiveData<List<SimpleClient>>
+    fun loadSimpleClientsAsLiveData(): LiveData<List<SimpleClient>>
+
+    @Query("SELECT identifier, name, serviceReason FROM client ORDER BY visitOrder asc")
+    fun loadSimpleClients() : List<SimpleClient>
 
     @Query("SELECT * FROM client WHERE identifier = :identifier")
     fun load(identifier: Long): Client

@@ -47,7 +47,8 @@ data class Client(
     fun getLatitude() = this.location.coordinate.latitude
     fun getLongitude() = this.location.coordinate.longitude
 
-    val profilePictureAsUri get() = this.profilePicture.large.toUri().buildUpon().scheme("https").build()
+    val profilePictureAsUri get() =
+        this.profilePicture.large.toUri().buildUpon().scheme("https").build()
 
     fun getProblemPicturesAsUri() : List<Uri> {
         val uris = ArrayList<Uri>()

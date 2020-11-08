@@ -14,6 +14,7 @@ import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.annotation.Nullable
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,10 +27,6 @@ class ClientRepo @Inject constructor(
     private var lastFetchSaved: Long = -1
     private var jsonFileNameOnServer: String = "celerocustomers.json"
 
-    fun setJsonFileNameOnServer(jsonFileNameOnServer: String) {
-        this.jsonFileNameOnServer = jsonFileNameOnServer
-    }
-
     fun getClient(identifier: Long): Client {
         return clientDao.load(identifier)
     }
@@ -38,14 +35,34 @@ class ClientRepo @Inject constructor(
         return clientDao.loadLive(identifier)
     }
 
-    suspend fun getAll(): LiveData<List<SimpleClient>> {
-        refreshList(jsonFileNameOnServer)
-        return clientDao.loadSimpleClients()
+    suspend fun getAll(
+        forceUpdate: Boolean = false,
+        list: String? = null
+    ): LiveData<List<SimpleClient>> {
+
+        if(!list.isNullOrEmpty()) {
+            jsonFileNameOnServer = list
+        }
+
+        if(forceUpdate) {
+            lastFetchSaved = -1
+        }
+
+        refreshList()
+        return clientDao.loadSimpleClientsAsLiveData()
     }
 
-    fun isConnected() : Boolean {
-        val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
-        return activeNetwork?.isConnectedOrConnecting == true
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private suspend fun refreshList() {
+        if (needsRefreshed() && isConnected()) {
+            withContext(Dispatchers.IO) {
+                val response =
+                    clientService.getAllClients(jsonFileNameOnServer).execute()
+
+                processResponse(response)
+                lastFetchSaved = System.currentTimeMillis()
+            }
+        }
     }
 
     // Repo implementation of test to check proper list updating.
@@ -54,12 +71,11 @@ class ClientRepo @Inject constructor(
     suspend fun getTestList(): LiveData<List<SimpleClient>> {
         if (isConnected()) {
             withContext(Dispatchers.IO) {
-//                val response = fetchTestList().execute()
                 processResponse(fetchTestList().execute())
             }
         }
 
-        return clientDao.loadSimpleClients()
+        return clientDao.loadSimpleClientsAsLiveData()
     }
 
     private suspend fun processResponse(response: Response<List<Client>>) {
@@ -71,12 +87,7 @@ class ClientRepo @Inject constructor(
         }
     }
 
-//    private suspend fun updateDatabase(clients: List<Client>) {
-//        clientDao.deleteAll()
-//        clientDao.insertAll(clients)
-//    }
-
-    suspend fun getTestRetrofitClient() : ClientService {
+    suspend fun getTestRetrofitClient(): ClientService {
         return Retrofit.Builder()
             .baseUrl("https://www.stephenmorgan-portfolio.com")
             .addConverterFactory(GsonConverterFactory.create())
@@ -84,30 +95,22 @@ class ClientRepo @Inject constructor(
             .create(ClientService::class.java)
     }
 
-    suspend fun fetchTestList() : Call<List<Client>> {
-        return getTestRetrofitClient().getTestClients("clients.json")
+    suspend fun fetchTestList(): Call<List<Client>> {
+        setJsonFileNameOnServer("clients.json")
+        return getTestRetrofitClient().getTestClients(jsonFileNameOnServer)
     }
 
-    suspend fun needsRefreshed() : Boolean{
+    suspend fun needsRefreshed(): Boolean {
         val timeout: Long = 300000
         return ((System.currentTimeMillis() - lastFetchSaved) > timeout)
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
-    private suspend fun refreshList(list: String) {
-        if (needsRefreshed() && isConnected()) {
-            withContext(Dispatchers.IO) {
-                val response = clientService.getAllClients(jsonFileNameOnServer).execute()
+    fun setJsonFileNameOnServer(jsonFileNameOnServer: String) {
+        this.jsonFileNameOnServer = jsonFileNameOnServer
+    }
 
-                if (response.isSuccessful) {
-                    clientDao.deleteAll()
-                    clientDao.insertAll(response.body()!!)
-                    lastFetchSaved = System.currentTimeMillis()
-                } else {
-                    val error = response.errorBody()
-                    Log.d("ClientRepo", error.toString())
-                }
-            }
-        }
+    fun isConnected(): Boolean {
+        val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+        return activeNetwork?.isConnectedOrConnecting == true
     }
 }
