@@ -2,6 +2,10 @@ package com.stephenmorgandevelopment.celero_challeng_kt
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.room.InvalidationTracker
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -13,15 +17,20 @@ import com.stephenmorgandevelopment.celero_challeng_kt.doas.ClientDao
 import com.stephenmorgandevelopment.celero_challeng_kt.models.Client
 import com.stephenmorgandevelopment.celero_challeng_kt.models.Location
 import com.stephenmorgandevelopment.celero_challeng_kt.models.ProfilePicture
+import com.stephenmorgandevelopment.celero_challeng_kt.models.SimpleClient
 import com.stephenmorgandevelopment.celero_challeng_kt.repos.ClientRepo
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Assert
+import org.junit.*
 import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Test
 import org.junit.runner.RunWith
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -29,7 +38,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 //@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-//@ExperimentalCoroutinesApi
 //@Config(application = HiltTestApplication::class)
 class RepoTest {
     private val application: Context = ApplicationProvider.getApplicationContext<Context>()
@@ -37,22 +45,26 @@ class RepoTest {
     private lateinit var clientDatabase: ClientDatabase
     private lateinit var clientDao: ClientDao
 
-//    @get:Rule
-//    val hilt = HiltAndroidRule(this)
+//    @Mock private lateinit var service: ClientService
+
+//    @Module
+//    @InstallIn(SingletonComponent::class)
+//    object ServiceModule {
+//        @Provides
+//        fun provideClientService() =
+//    }
+
+//    @get:Rule val hilt = HiltAndroidRule(this)
 
     @Before
     fun init() {
         initRepo()
-        mockData()
-
-//        Dispatchers.setMain(dispatcher)
+        insertMockData()
     }
 
     @After
     fun tearDown() {
         clientDatabase.close()
-//        Dispatchers.resetMain()
-//        dispatcher.cleanupTestCoroutines()
     }
 
     @Test
@@ -63,27 +75,29 @@ class RepoTest {
         assertEquals(client.serviceReason, "1 reasons")
     }
 
-
-    // Currently FAILS!!!
     @Test
-    fun getAllReturnsData() {
-        val clients = runBlocking {
-            clientRepo.getAll()
-        }
+    fun verifyDatabaseEntriesMatchMockedDataSize() {
+        var simpleClients: LiveData<List<SimpleClient>>
 
-        assert(clients.value!!.size == 5)
+        runBlocking(Dispatchers.Main) {
+            simpleClients = clientRepo.getAll()
+
+            simpleClients.observeForever(observer)
+
+            Thread.sleep(3000)
+
+            simpleClients.removeObserver(observer)
+        }
+    }
+
+    val observer = Observer<List<SimpleClient>>() {
+        assertEquals(it.size, 5)
     }
 
 
-    fun initRepo() {
-        //TODO Mock this service.  It is not good practice to test the network
-        // calls here.
-        val service = Retrofit.Builder()
-            .baseUrl("https://hulet.tech")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build().create(ClientService::class.java)
-
-        val conMan = application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private fun initRepo() {
+        val conMan =
+            application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
         clientDatabase =
             Room.inMemoryDatabaseBuilder(application, ClientDatabase::class.java)
@@ -93,39 +107,14 @@ class RepoTest {
 
 //              DataModule.provideClientDao(DataModule.provideClientDatabase(application))
 
-        clientRepo = ClientRepo(conMan, service, clientDao)
+        clientRepo = ClientRepo(conMan, null, clientDao)
     }
 
-    fun mockData() {
-        val mockedClients = ArrayList<Client>(5)
-        for (i in 0 until 5 step 1) {
-            mockedClients.add(
-                Client(
-                    (100L + i),
-                    i.toLong(),
-                    java.lang.String.format("Mock %d", i),
-                    java.lang.String.format("(%d0%d)%d0%d-0000", i, i, i, i),
-                    ProfilePicture.getEmpty(),
-                    Location.getEmpty(),
-                    java.lang.String.format("%d reasons", i),
-                    listOf(String.format("10%d problems", i))
-                )
-            )
-        }
+    private fun insertMockData() {
+        val mockedClients = TestingUtils.generateMockData()
 
         runBlocking {
             clientDao.insertAll(mockedClients)
         }
-
     }
-
-//        val mockClientOne = Client(
-//            101,
-//            1,
-//            "Mock One",
-//            "(101)101-0000",
-//            ProfilePicture.getEmpty(),
-//            Location.getEmpty(),
-//            "101 reasons",
-//            listOf("10%d problems")
 }

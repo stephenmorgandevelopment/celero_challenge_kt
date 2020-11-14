@@ -32,20 +32,6 @@ class DatabaseTest {
         populateDatabaseWithMockData()
     }
 
-    fun createDatabase() {
-        val context: Context = ApplicationProvider.getApplicationContext()
-        clientDatabase = Room.inMemoryDatabaseBuilder(
-            context,
-            ClientDatabase::class.java).build()
-        clientDao = clientDatabase.clientDao()
-    }
-
-    fun populateDatabaseWithMockData() {
-        runBlocking {
-            clientDao.insertAll(mockData())
-        }
-    }
-
     @After
     @Throws(IOException::class)
     fun closeDatabase() {
@@ -59,12 +45,11 @@ class DatabaseTest {
 
         runBlocking {
             clientDao.insert(client)
-
-            val phoneNumber = "(000)000-0000"
-
-            assertThat(clientDao.load(0).phoneNumber, equalTo(phoneNumber))
         }
 
+        val phoneNumber = "(000)000-0000"
+
+        assertEquals(clientDao.load(0).phoneNumber, phoneNumber)
     }
 
     @Test
@@ -87,25 +72,20 @@ class DatabaseTest {
     }
 
 
-    private fun mockData() : List<Client> {
-        val mockedClients = ArrayList<Client>(5)
-        for(i in 0 until 5 step 1) {
-            mockedClients.add(
-                Client(
-                    (100L + i),
-                    i.toLong(),
-                    java.lang.String.format("Mock %d", i),
-                    java.lang.String.format("(%d0%d)%d0%d-0000",i, i, i, i),
-                    ProfilePicture.getEmpty(),
-                    Location.getEmpty(),
-                    java.lang.String.format("%d reasons", i),
-                    listOf(String.format("10%d problems", i))
-                )
-            )
-        }
 
-        return mockedClients
+    private fun createDatabase() {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        clientDatabase = Room.inMemoryDatabaseBuilder(
+            context,
+            ClientDatabase::class.java).build()
+        clientDao = clientDatabase.clientDao()
     }
 
+    private fun populateDatabaseWithMockData() {
+        val mockedClients = TestingUtils.generateMockData()
 
+        runBlocking {
+            clientDao.insertAll(mockedClients)
+        }
+    }
 }

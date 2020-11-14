@@ -21,7 +21,7 @@ import javax.inject.Singleton
 @Singleton
 class ClientRepo @Inject constructor(
     val connectivityManager: ConnectivityManager,
-    val clientService: ClientService,
+    val clientService: ClientService?,
     val clientDao: ClientDao
 ) {
     private var lastFetchSaved: Long = -1
@@ -48,7 +48,10 @@ class ClientRepo @Inject constructor(
             lastFetchSaved = -1
         }
 
-        refreshList()
+        if(clientService != null) {
+            refreshList()
+        }
+
         return clientDao.loadSimpleClientsAsLiveData()
     }
 
@@ -57,7 +60,7 @@ class ClientRepo @Inject constructor(
         if (needsRefreshed() && isConnected()) {
             withContext(Dispatchers.IO) {
                 val response =
-                    clientService.getAllClients(jsonFileNameOnServer).execute()
+                    clientService!!.getAllClients(jsonFileNameOnServer).execute()
 
                 processResponse(response)
                 lastFetchSaved = System.currentTimeMillis()
