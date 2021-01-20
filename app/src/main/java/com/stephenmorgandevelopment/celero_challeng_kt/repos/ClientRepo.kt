@@ -25,6 +25,8 @@ class ClientRepo @Inject constructor(
     val clientDao: ClientDao
 ) {
     private var lastFetchSaved: Long = -1
+
+    // Variable added for ability to host multiple lists for multiple operators.
     private var jsonFileNameOnServer: String = "celerocustomers.json"
 
     fun getClient(identifier: Long): Client {
@@ -68,6 +70,29 @@ class ClientRepo @Inject constructor(
         }
     }
 
+    private suspend fun processResponse(response: Response<List<Client>>) {
+        if (response.isSuccessful) {
+            clientDao.updateDatabase(response.body()!!)
+        } else {
+            val error = response.errorBody()
+            Log.d("ClientRepo", error.toString())
+        }
+    }
+
+    private fun needsRefreshed(): Boolean {
+        val timeout: Long = 300000
+        return ((System.currentTimeMillis() - lastFetchSaved) > timeout)
+    }
+
+    private fun setJsonFileNameOnServer(jsonFileNameOnServer: String) {
+        this.jsonFileNameOnServer = jsonFileNameOnServer
+    }
+
+    private fun isConnected(): Boolean {
+        val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+        return activeNetwork?.isConnectedOrConnecting == true
+    }
+
     // Repo implementation of test to check proper list updating.
     // May look at moving this to where it belongs.  In the test folders.
     @Suppress("BlockingMethodInNonBlockingContext")
@@ -81,39 +106,16 @@ class ClientRepo @Inject constructor(
         return clientDao.loadSimpleClientsAsLiveData()
     }
 
-    private suspend fun processResponse(response: Response<List<Client>>) {
-        if (response.isSuccessful) {
-            clientDao.updateDatabase(response.body()!!)
-        } else {
-            val error = response.errorBody()
-            Log.d("ClientRepo", error.toString())
-        }
+    fun fetchTestList(): Call<List<Client>> {
+        setJsonFileNameOnServer("clients.json")
+        return getTestRetrofitClient().getTestClients(jsonFileNameOnServer)
     }
 
-    suspend fun getTestRetrofitClient(): ClientService {
+    fun getTestRetrofitClient(): ClientService {
         return Retrofit.Builder()
             .baseUrl("https://www.stephenmorgan-portfolio.com")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ClientService::class.java)
-    }
-
-    suspend fun fetchTestList(): Call<List<Client>> {
-        setJsonFileNameOnServer("clients.json")
-        return getTestRetrofitClient().getTestClients(jsonFileNameOnServer)
-    }
-
-    suspend fun needsRefreshed(): Boolean {
-        val timeout: Long = 300000
-        return ((System.currentTimeMillis() - lastFetchSaved) > timeout)
-    }
-
-    fun setJsonFileNameOnServer(jsonFileNameOnServer: String) {
-        this.jsonFileNameOnServer = jsonFileNameOnServer
-    }
-
-    fun isConnected(): Boolean {
-        val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
-        return activeNetwork?.isConnectedOrConnecting == true
     }
 }

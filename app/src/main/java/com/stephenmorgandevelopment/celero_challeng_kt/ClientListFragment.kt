@@ -53,13 +53,16 @@ class ClientListFragment : Fragment() {
         inflater.inflate(R.menu.toolbar_menu, menu)
     }
 
+    // TODO Implement this "test" in unit tests.
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.refreshMenuBtn -> {
                 viewModel.viewModelScope.launch {
-                    viewModel.refreshList()
-                    // Runs test hosted on my domain to check for list update.
-//                    viewModel.refreshTestList()
+//                    viewModel.refreshList()
+                    // Runs test hosted on my domain to check for list changed update.
+                    // Uncomment line 61 and comment line 65 to update list from official challenge.
+                    // Vice versa to update list with test list from my domain.
+                    viewModel.refreshTestList()
                 }
 
                 viewModel.clients.observe(viewLifecycleOwner) {
