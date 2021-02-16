@@ -36,4 +36,5 @@ ext {
     espressoVersion = '3.2.0-beta01'
     junitVersion = '4.13.1'
     fragment_version = "1.2.5"
+    lifecycle_version = "2.3.0"
 }

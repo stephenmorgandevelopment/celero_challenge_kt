@@ -15,8 +15,7 @@ import javax.inject.Singleton
 object DataModule {
 
     @Provides
-    @Singleton      // This Provider will most likely be removed after next commit.
-                    // I'm pretty sure it isn't used.
+    @Singleton
     fun provideClientDatabase(@ApplicationContext context: Context): ClientDatabase =
         Room.databaseBuilder(context, ClientDatabase::class.java, "client.db")
             .build()

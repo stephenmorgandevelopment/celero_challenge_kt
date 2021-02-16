@@ -72,12 +72,13 @@ class DatabaseTest {
     }
 
 
-
     private fun createDatabase() {
         val context: Context = ApplicationProvider.getApplicationContext()
         clientDatabase = Room.inMemoryDatabaseBuilder(
             context,
-            ClientDatabase::class.java).build()
+            ClientDatabase::class.java
+        ).allowMainThreadQueries()
+            .build()
         clientDao = clientDatabase.clientDao()
     }
 

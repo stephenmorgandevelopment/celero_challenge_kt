@@ -28,7 +28,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import javax.inject.Inject
 
-class ClientFragmentTest {}
+@HiltAndroidTest
+class ClientFragmentTest {
+    @get:Rule val hiltAndroidRule = HiltAndroidRule(this)
+
+
+
+}
 //@HiltAndroidTest
 //@RunWith(AndroidJUnit4::class)
 //class ClientFragmentTest {

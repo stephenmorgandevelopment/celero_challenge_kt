@@ -5,15 +5,16 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.stephenmorgandevelopment.celero_challeng_kt.models.Client
 import com.stephenmorgandevelopment.celero_challeng_kt.repos.ClientRepo
+import com.stephenmorgandevelopment.celero_challeng_kt.repos.DefaultClientRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ClientViewModel @ViewModelInject constructor(
     @Assisted val savedStateHandle: SavedStateHandle,
-    private val clientRepo: ClientRepo
+    private val clientRepo: DefaultClientRepo
 ) : ViewModel() {
     private val _liveClient: MutableLiveData<Client> = MutableLiveData()
-    val liveClient: LiveData<Client> get() = _liveClient
+    val liveClient: LiveData<Client> = _liveClient
 
     val identifier : Long = savedStateHandle[KEY_USER] ?: -1
 

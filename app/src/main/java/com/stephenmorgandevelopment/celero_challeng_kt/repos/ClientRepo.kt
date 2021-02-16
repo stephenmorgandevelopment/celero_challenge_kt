@@ -23,23 +23,23 @@ class ClientRepo @Inject constructor(
     val connectivityManager: ConnectivityManager,
     val clientService: ClientService?,
     val clientDao: ClientDao
-) {
+) : DefaultClientRepo {
     private var lastFetchSaved: Long = -1
 
     // Variable added for ability to host multiple lists for multiple operators.
     private var jsonFileNameOnServer: String = "celerocustomers.json"
 
-    fun getClient(identifier: Long): Client {
+    override fun getClient(identifier: Long): Client {
         return clientDao.load(identifier)
     }
 
-    fun getLiveClient(identifier: Long): LiveData<Client> {
+    override fun getLiveClient(identifier: Long): LiveData<Client> {
         return clientDao.loadLive(identifier)
     }
 
-    suspend fun getAll(
-        forceUpdate: Boolean = false,
-        list: String? = null
+    override suspend fun getAll(
+        forceUpdate: Boolean,
+        list: String?
     ): LiveData<List<SimpleClient>> {
 
         if(!list.isNullOrEmpty()) {
@@ -79,8 +79,9 @@ class ClientRepo @Inject constructor(
         }
     }
 
-    private fun needsRefreshed(): Boolean {
-        val timeout: Long = 300000
+    private fun needsRefreshed(
+        timeout: Long = 300000
+    ): Boolean {
         return ((System.currentTimeMillis() - lastFetchSaved) > timeout)
     }
 

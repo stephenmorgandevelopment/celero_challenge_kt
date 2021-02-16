@@ -4,11 +4,13 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.stephenmorgandevelopment.celero_challeng_kt.models.SimpleClient
 import com.stephenmorgandevelopment.celero_challeng_kt.repos.ClientRepo
+import com.stephenmorgandevelopment.celero_challeng_kt.repos.DefaultClientRepo
 import kotlinx.coroutines.launch
 
 class AllClientsViewModel @ViewModelInject constructor(
-    private val clientRepo: ClientRepo
+    private val clientRepo: DefaultClientRepo
 ) : ViewModel() {
+//    private var _allClients = MutableLiveData<List<SimpleClient>>()
     private var _allClients: LiveData<List<SimpleClient>>
     val clients : LiveData<List<SimpleClient>> get() = _allClients
 
@@ -28,7 +30,7 @@ class AllClientsViewModel @ViewModelInject constructor(
     // Writing unit test in the test folders will most likely be my next area of focused learning.
     suspend fun refreshTestList() {
         _allClients = liveData {
-            emitSource(clientRepo.getTestList())
+            emitSource((clientRepo as ClientRepo).getTestList())
         }
     }
 }

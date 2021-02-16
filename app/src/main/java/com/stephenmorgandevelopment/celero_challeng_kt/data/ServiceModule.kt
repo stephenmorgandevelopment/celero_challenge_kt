@@ -30,7 +30,5 @@ object ServiceModule {
     @Singleton
     fun provideConnectivityManager(
         @ApplicationContext context: Context
-    ): ConnectivityManager {
-        return context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    }
+    ): ConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 }
