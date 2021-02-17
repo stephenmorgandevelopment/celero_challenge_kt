@@ -1,38 +1,53 @@
 package com.stephenmorgandevelopment.celero_challeng_kt
 
-import android.content.Intent
+
 import android.os.Bundle
-import android.os.PersistableBundle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.testing.FragmentScenario
-import androidx.fragment.app.testing.launchFragmentInContainer
-import androidx.fragment.app.viewModels
-import androidx.test.espresso.*
+import androidx.fragment.app.FragmentManager
 import androidx.test.espresso.Espresso.*
-import androidx.test.espresso.assertion.ViewAssertions.*
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.ext.junit.rules.ActivityScenarioRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.stephenmorgandevelopment.celero_challeng_kt.models.Client
-import com.stephenmorgandevelopment.celero_challeng_kt.models.Location
-import com.stephenmorgandevelopment.celero_challeng_kt.models.ProfilePicture
-import com.stephenmorgandevelopment.celero_challeng_kt.viewmodels.ClientViewModel
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.HiltAndroidApp
+
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.hamcrest.Matchers.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
-import javax.inject.Inject
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+
 
 @HiltAndroidTest
+@ExperimentalCoroutinesApi
 class ClientFragmentTest {
+
     @get:Rule val hiltAndroidRule = HiltAndroidRule(this)
 
+    @Before
+    fun setup() {
+        hiltAndroidRule.inject()
+    }
 
+    @Test
+    fun clickFirstClientItemInList_navigateToFirstClientDetailPage() {
+        val fragmentManager = mock(FragmentManager::class.java)
+        lateinit var fragment: ClientFragment
+
+        launchFragmentInHiltContainer<ClientListFragment> {
+            fragment = ClientFragment().apply {
+                arguments = Bundle().apply {
+                    putLong(ClientFragment.IDENTIFIER_TAG, 0)
+                }
+            }
+        }
+
+        onData(anything()).inAdapterView(withId(R.id.client_listview))
+            .atPosition(0).perform(click())
+
+        verify(fragmentManager).beginTransaction()
+            .replace(R.id.container, fragment, ClientFragment.TAG)
+    }
 
 }
 //@HiltAndroidTest
