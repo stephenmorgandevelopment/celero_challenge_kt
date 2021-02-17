@@ -1,18 +1,18 @@
 package com.stephenmorgandevelopment.celero_challeng_kt.viewmodels
 
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.stephenmorgandevelopment.celero_challeng_kt.models.SimpleClient
 import com.stephenmorgandevelopment.celero_challeng_kt.repos.ClientRepo
 import com.stephenmorgandevelopment.celero_challeng_kt.repos.DefaultClientRepo
-import kotlinx.coroutines.launch
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class AllClientsViewModel @ViewModelInject constructor(
+@HiltViewModel
+class AllClientsViewModel @Inject constructor(
     private val clientRepo: DefaultClientRepo
 ) : ViewModel() {
-//    private var _allClients = MutableLiveData<List<SimpleClient>>()
     private var _allClients: LiveData<List<SimpleClient>>
-    val clients : LiveData<List<SimpleClient>> get() = _allClients
+    val clients: LiveData<List<SimpleClient>> get() = _allClients
 
     init {
         _allClients = liveData {

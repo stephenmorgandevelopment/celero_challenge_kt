@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.stephenmorgandevelopment.celero_challeng_kt.databinding.ClientDetailViewBinding
 import com.stephenmorgandevelopment.celero_challeng_kt.models.Client
@@ -21,18 +20,16 @@ class ClientFragment() : Fragment() {
     private var _binding: ClientDetailViewBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel by viewModels<ClientViewModel> {
-        defaultViewModelProviderFactory
-    }
+    val clientViewModel: ClientViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if(viewModel.identifier == -1L) {
+        if (clientViewModel.identifier == -1L) {
             val identifier = arguments?.getLong(IDENTIFIER_TAG)
                 ?: throw IllegalArgumentException("Missing identifier.")
 
-            viewModel.setClient(identifier)
+            clientViewModel.setClient(identifier)
         }
     }
 
@@ -41,13 +38,14 @@ class ClientFragment() : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         _binding = ClientDetailViewBinding.inflate(inflater, container, false)
 
-        viewModel.liveClient.observe(viewLifecycleOwner) {
+        clientViewModel.liveClient.observe(viewLifecycleOwner) {
             updateUi(it)
         }
 
-        viewModel.liveClient.value?.let { updateUi(it) }
+        clientViewModel.liveClient.value?.let { updateUi(it) }
 
         return binding.root
     }

@@ -1,27 +1,28 @@
 package com.stephenmorgandevelopment.celero_challeng_kt.viewmodels
 
-import androidx.hilt.Assisted
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.stephenmorgandevelopment.celero_challeng_kt.models.Client
-import com.stephenmorgandevelopment.celero_challeng_kt.repos.ClientRepo
 import com.stephenmorgandevelopment.celero_challeng_kt.repos.DefaultClientRepo
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ClientViewModel @ViewModelInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+@HiltViewModel
+class ClientViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val clientRepo: DefaultClientRepo
 ) : ViewModel() {
     private val _liveClient: MutableLiveData<Client> = MutableLiveData()
-    val liveClient: LiveData<Client> = _liveClient
+    val liveClient: LiveData<Client> get() = _liveClient
 
-    val identifier : Long = savedStateHandle[KEY_USER] ?: -1
+    private var _identifier: Long = savedStateHandle[KEY_USER] ?: -1L
+    var identifier: Long = _identifier
 
     init {
-        if(identifier != -1L) {
+        if (_identifier != -1L) {
             viewModelScope.launch(Dispatchers.IO) {
-                _liveClient.postValue(clientRepo.getClient(identifier))
+                _liveClient.postValue(clientRepo.getClient(_identifier))
             }
         } else {
             _liveClient.value = Client.getEmpty()
@@ -33,12 +34,11 @@ class ClientViewModel @ViewModelInject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             _liveClient.postValue(clientRepo.getClient(id))
         }
+        _identifier = id
     }
 
     companion object {
         private val KEY_USER = "identifier"
     }
-
-
 }
 
