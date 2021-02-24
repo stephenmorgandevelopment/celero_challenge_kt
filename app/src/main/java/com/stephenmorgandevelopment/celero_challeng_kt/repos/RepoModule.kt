@@ -18,7 +18,7 @@ object RepoModule {
     @Singleton
     fun provideClientRepo(
         connectivityManager: ConnectivityManager,
-        clientService: ClientService?,
+        clientService: ClientService,
         clientDao: ClientDao
     ): DefaultClientRepo = ClientRepo(
         connectivityManager,

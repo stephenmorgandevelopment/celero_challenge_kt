@@ -15,11 +15,13 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ServiceModule {
+    const val BASE_URL = "https://hulet.tech"
+
     @Provides
     @Singleton
     fun provideClientService(): ClientService {
         val retrofitClient = Retrofit.Builder()
-            .baseUrl("https://hulet.tech")
+            .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 

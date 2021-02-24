@@ -56,7 +56,7 @@ class FakeClientRepo : DefaultClientRepo {
     companion object {
         fun generateMockSimpleClients(offset: Int = 0): List<SimpleClient> {
             val mockedClients = ArrayList<SimpleClient>(5)
-            for (i in offset until offset + 5) {
+            for (i in offset until (offset + 5)) {
                 mockedClients.add(
                     SimpleClient(
                         (100L + i),
@@ -72,7 +72,7 @@ class FakeClientRepo : DefaultClientRepo {
 
         fun generateMockData(offset: Int = 0): List<Client> {
             val mockedClients = ArrayList<Client>(5)
-            for (i in offset until offset + 5) {
+            for (i in offset..(offset + 5)) {
                 mockedClients.add(
                     Client(
                         (100L + i),

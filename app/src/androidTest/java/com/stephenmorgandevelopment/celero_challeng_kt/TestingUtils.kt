@@ -3,6 +3,7 @@ package com.stephenmorgandevelopment.celero_challeng_kt
 import com.stephenmorgandevelopment.celero_challeng_kt.models.Client
 import com.stephenmorgandevelopment.celero_challeng_kt.models.Location
 import com.stephenmorgandevelopment.celero_challeng_kt.models.ProfilePicture
+import com.stephenmorgandevelopment.celero_challeng_kt.models.SimpleClient
 import kotlinx.coroutines.runBlocking
 
 class TestingUtils {
@@ -21,6 +22,21 @@ class TestingUtils {
                         Location.getEmpty(),
                         java.lang.String.format("%d reasons", i),
                         listOf(String.format("10%d problems", i))
+                    )
+                )
+            }
+
+            return mockedClients
+        }
+
+        fun generateMockSimpleClients() : List<SimpleClient> {
+            val mockedClients = ArrayList<SimpleClient>(5)
+            for (i in 0..5) {
+                mockedClients.add(
+                    SimpleClient(
+                        (100L + i),
+                        java.lang.String.format("Mock %d", i),
+                        java.lang.String.format("%d reasons", i)
                     )
                 )
             }

@@ -27,6 +27,7 @@ class ClientFragmentTest {
     @Before
     fun setup() {
         hiltAndroidRule.inject()
+
     }
 
     @Test
@@ -37,7 +38,7 @@ class ClientFragmentTest {
         launchFragmentInHiltContainer<ClientListFragment> {
             fragment = ClientFragment().apply {
                 arguments = Bundle().apply {
-                    putLong(ClientFragment.IDENTIFIER_TAG, 0)
+                    putLong(ClientFragment.IDENTIFIER_TAG, 100L)
                 }
             }
         }
