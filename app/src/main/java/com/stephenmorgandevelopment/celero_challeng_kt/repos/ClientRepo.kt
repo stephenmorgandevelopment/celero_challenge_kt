@@ -61,7 +61,6 @@ class ClientRepo @Inject constructor(
                     clientService.getAllClients(jsonFileNameOnServer).execute()
 
                 processResponse(response)
-                lastFetchSaved = System.currentTimeMillis()
             }
         }
     }
@@ -69,6 +68,7 @@ class ClientRepo @Inject constructor(
     private suspend fun processResponse(response: Response<List<Client>>) {
         if (response.isSuccessful) {
             clientDao.updateDatabase(response.body()!!)
+            lastFetchSaved = System.currentTimeMillis()
         } else {
             val error = response.errorBody()
             Log.d("ClientRepo", error.toString())

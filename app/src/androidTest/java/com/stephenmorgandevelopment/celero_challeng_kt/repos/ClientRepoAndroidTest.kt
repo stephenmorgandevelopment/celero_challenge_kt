@@ -2,22 +2,20 @@ package com.stephenmorgandevelopment.celero_challeng_kt.repos
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
+import android.util.Log
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.stephenmorgandevelopment.celero_challeng_kt.TestHelpers
+import com.stephenmorgandevelopment.celero_challeng_kt.TestingUtils
 import com.stephenmorgandevelopment.celero_challeng_kt.api.ClientService
 import com.stephenmorgandevelopment.celero_challeng_kt.api.MockAndroidClientService
 import com.stephenmorgandevelopment.celero_challeng_kt.data.ClientDatabase
 import com.stephenmorgandevelopment.celero_challeng_kt.data.ServiceModule
 import com.stephenmorgandevelopment.celero_challeng_kt.doas.ClientDao
 import com.stephenmorgandevelopment.celero_challeng_kt.getOrAwaitValue
-import com.stephenmorgandevelopment.celero_challeng_kt.models.Client
-import com.stephenmorgandevelopment.celero_challeng_kt.models.SimpleClient
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Test
 
@@ -25,8 +23,6 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
-import org.robolectric.Shadows.shadowOf
-import org.robolectric.shadows.ShadowNetworkCapabilities
 import retrofit2.Retrofit
 import retrofit2.mock.MockRetrofit
 import retrofit2.mock.NetworkBehavior
@@ -40,12 +36,12 @@ import java.util.concurrent.TimeUnit
 
 
 @RunWith(AndroidJUnit4::class)
-//@ExperimentalCoroutinesApi
 class ClientRepoAndroidTest {
     private lateinit var clientRepo: ClientRepo
     private lateinit var clientDatabase: ClientDatabase
 
-    @get:Rule var instantExecutorRule = InstantTaskExecutorRule()
+    @get:Rule
+    var instantExecutorRule = InstantTaskExecutorRule()
 
     @Before
     fun setup() {
@@ -71,9 +67,18 @@ class ClientRepoAndroidTest {
     }
 
     @Test
-    fun getClient() {
+    fun getClient_returnsCorrectClientByIdentifier() = runBlocking {
+        val testData = TestHelpers.generateTestData()
+        val clientIdentifiers = listOf<Long>(234513L, 734563L, 364562L)
 
+        // Load data into database
+        val simpleClients = clientRepo.getAll()
+
+        assert(clientRepo.getClient(clientIdentifiers[0]).name == testData[0].name)
+        assert(clientRepo.getClient(clientIdentifiers[1]).name == testData[1].name)
+        assert(clientRepo.getClient(clientIdentifiers[2]).name == testData[2].name)
     }
+
 
     @Test
     fun getLiveClient() {
@@ -96,7 +101,6 @@ class ClientRepoAndroidTest {
         val liveClientList = clientRepo.getAll()
 
         val clientList = liveClientList.getOrAwaitValue()
-        val firstClient = clientList[0]
 
         assert(clientList.size == expectedSize)
     }
@@ -118,7 +122,7 @@ class ClientRepoAndroidTest {
     }
 
 
-    private fun mockClientService() : MockAndroidClientService {
+    private fun mockClientService(): MockAndroidClientService {
         val retrofit = Retrofit.Builder()
             .baseUrl(ServiceModule.BASE_URL)
             .build()

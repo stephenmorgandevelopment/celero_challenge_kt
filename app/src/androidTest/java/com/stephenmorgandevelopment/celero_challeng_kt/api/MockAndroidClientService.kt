@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.stephenmorgandevelopment.celero_challeng_kt.TestHelpers
 
 import com.stephenmorgandevelopment.celero_challeng_kt.models.Client
 import retrofit2.Call
@@ -16,17 +17,18 @@ class MockAndroidClientService(
     private var response: List<Client>
 
     init {
-        val fileStream = ApplicationProvider.getApplicationContext<Context>()
-            .assets.open("testJson.json")
-
-        val jsonString = fileStream.readBytes().toString(Charset.defaultCharset())
-
-        fileStream.close()
-
-        val listType = TypeToken
-            .getParameterized(List::class.java, Client::class.java).type
-
-        response = Gson().fromJson(jsonString, listType)
+        response = TestHelpers.generateTestData()
+//        val fileStream = ApplicationProvider.getApplicationContext<Context>()
+//            .assets.open("testJson.json")
+//
+//        val jsonString = fileStream.readBytes().toString(Charset.defaultCharset())
+//
+//        fileStream.close()
+//
+//        val listType = TypeToken
+//            .getParameterized(List::class.java, Client::class.java).type
+//
+//        response = Gson().fromJson(jsonString, listType)
     }
 
     override fun getAllClients(list: String) : Call<List<Client>> =
