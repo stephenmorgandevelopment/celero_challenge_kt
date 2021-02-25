@@ -65,9 +65,9 @@ class ClientListFragment : Fragment() {
                     viewModel.refreshTestList()
                 }
 
-                viewModel.clients.observe(viewLifecycleOwner) {
+                viewModel.clients.observe(viewLifecycleOwner, Observer {
                     updateList(it)
-                }
+                })
 
                 return true
             }

@@ -7,13 +7,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.stephenmorgandevelopment.celero_challeng_kt.data.ClientDatabase
 import com.stephenmorgandevelopment.celero_challeng_kt.doas.ClientDao
 import com.stephenmorgandevelopment.celero_challeng_kt.models.Client
-import com.stephenmorgandevelopment.celero_challeng_kt.models.Location
-import com.stephenmorgandevelopment.celero_challeng_kt.models.ProfilePicture
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.core.IsEqual
-import org.hamcrest.core.IsEqual.*
 import org.junit.After
-import org.junit.Assert
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test

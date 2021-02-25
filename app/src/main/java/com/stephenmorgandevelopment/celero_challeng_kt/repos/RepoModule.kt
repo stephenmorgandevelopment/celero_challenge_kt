@@ -24,6 +24,6 @@ object RepoModule {
         connectivityManager,
         clientService,
         clientDao
-    ) as DefaultClientRepo
+    )
 
 }
