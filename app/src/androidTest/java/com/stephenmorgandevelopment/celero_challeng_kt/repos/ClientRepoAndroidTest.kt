@@ -81,8 +81,21 @@ class ClientRepoAndroidTest {
 
 
     @Test
-    fun getLiveClient() {
+    fun getLiveClient_returnsCorrectClientByIdentifierAsLiveData() = runBlocking {
+        val testData = TestHelpers.generateTestData()
+        val clientIdentifiers = listOf<Long>(234513L, 734563L, 364562L)
 
+        // Load data into database
+        val simpleClients = clientRepo.getAll()
+
+        assert(clientRepo.getLiveClient(clientIdentifiers[0])
+            .getOrAwaitValue().name == testData[0].name)
+
+        assert(clientRepo.getLiveClient(clientIdentifiers[1])
+                .getOrAwaitValue().name == testData[1].name)
+
+        assert(clientRepo.getLiveClient(clientIdentifiers[2])
+                .getOrAwaitValue().name == testData[2].name)
     }
 
     @Test

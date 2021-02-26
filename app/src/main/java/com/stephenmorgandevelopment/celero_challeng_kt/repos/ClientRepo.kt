@@ -4,7 +4,6 @@ import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.util.Log
 import androidx.lifecycle.LiveData
-import com.stephenmorgandevelopment.celero_challeng_kt.api.ClientApiResponse
 import com.stephenmorgandevelopment.celero_challeng_kt.doas.ClientDao
 import com.stephenmorgandevelopment.celero_challeng_kt.models.Client
 import com.stephenmorgandevelopment.celero_challeng_kt.models.SimpleClient
