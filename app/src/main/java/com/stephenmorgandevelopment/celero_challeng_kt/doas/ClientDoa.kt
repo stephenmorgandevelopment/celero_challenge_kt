@@ -2,6 +2,7 @@ package com.stephenmorgandevelopment.celero_challeng_kt.doas
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.stephenmorgandevelopment.celero_challeng_kt.api.ClientResponse
 import com.stephenmorgandevelopment.celero_challeng_kt.models.Client
 import com.stephenmorgandevelopment.celero_challeng_kt.models.SimpleClient
 
@@ -18,6 +19,9 @@ interface ClientDao {
 
     @Query("SELECT identifier, name, serviceReason FROM client ORDER BY visitOrder asc")
     fun loadSimpleClientsAsLiveData(): LiveData<List<SimpleClient>>
+
+    @Query("SELECT identifier, name, serviceReason FROM client ORDER BY visitOrder asc")
+    fun loadSimpleClientsAsLiveDataClientResponse(): LiveData<ClientResponse>
 
     @Query("SELECT identifier, name, serviceReason FROM client ORDER BY visitOrder asc")
     fun loadSimpleClients() : List<SimpleClient>

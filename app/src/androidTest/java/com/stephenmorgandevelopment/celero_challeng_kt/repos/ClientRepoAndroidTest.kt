@@ -49,15 +49,12 @@ class ClientRepoAndroidTest {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        clientDatabase =
-            Room.inMemoryDatabaseBuilder(context, ClientDatabase::class.java)
-                .build()
-        val clientDao: ClientDao = clientDatabase.clientDao()
+        clientDatabase = Room.inMemoryDatabaseBuilder(context, ClientDatabase::class.java).build()
 
         clientRepo = ClientRepo(
             connectivityManager,
             mockClientService(),
-            clientDao
+            clientDatabase.clientDao()
         )
     }
 
