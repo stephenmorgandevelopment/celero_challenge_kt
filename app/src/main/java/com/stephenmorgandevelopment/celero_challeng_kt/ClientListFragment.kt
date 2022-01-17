@@ -6,7 +6,6 @@ import android.widget.AdapterView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.observe
 import androidx.lifecycle.viewModelScope
 import com.stephenmorgandevelopment.celero_challeng_kt.adapters.AllClientsAdapter
 import com.stephenmorgandevelopment.celero_challeng_kt.databinding.ClientListViewBinding
@@ -31,7 +30,7 @@ class ClientListFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = ClientListViewBinding.inflate(inflater, container, false)
 
         val adapter = AllClientsAdapter(inflater)
@@ -58,16 +57,14 @@ class ClientListFragment : Fragment() {
         when (item.itemId) {
             R.id.refreshMenuBtn -> {
                 viewModel.viewModelScope.launch {
-//                    viewModel.refreshList()
+                    viewModel.refreshList()
                     // Runs test hosted on my domain to check for list changed update.
                     // Uncomment line 61 and comment line 65 to update list from official challenge.
                     // Vice versa to update list with test list from my domain.
-                    viewModel.refreshTestList()
+//                    viewModel.refreshTestList()
                 }
 
-                viewModel.clients.observe(viewLifecycleOwner) {
-                    updateList(it)
-                }
+                viewModel.clients.observe(viewLifecycleOwner, this::updateList)
 
                 return true
             }
